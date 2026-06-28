@@ -51,9 +51,11 @@
                 <label>Password</label>
                 <input type="password" name="password" placeholder="••••••••" required />
             </div>
+
             <button type="submit">Authenticate</button>
         </form>
         <a href="index.jsp" class="back-home">← Return to Home</a>
+
     </div>
 
 </body>

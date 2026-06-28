@@ -22,7 +22,7 @@ public class EmployeeDao {
     }
 
     // SMART CREATE: Finds the first available empty ID gap, or appends normally
-    public void insertEmployee(Employee employee) throws SQLException {
+    public void insertEmployee(Employee employee , String admin) throws SQLException {
         Connection connection = getConnection();
         int targetId = -1;
 

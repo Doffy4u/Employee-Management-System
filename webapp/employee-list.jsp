@@ -124,13 +124,21 @@
                 </div>
                 <div class="form-group">
                     <label>Annual Salary ($)</label>
-                    <input type="number" step="0.01" name="salary" value="<%= isEditMode ? empToEdit.getSalary() : "" %>" placeholder="65000" required />
+                    <input type="number" step="0.01" min="0" name="salary"
+                               value="<%= isEditMode ? empToEdit.getSalary() : "" %>"
+                               placeholder="65000" required />
                 </div>
                 <button type="submit" class="<%= isEditMode ? "btn-update" : "btn-save" %>">
                     <%= isEditMode ? "Apply Modifications" : "Commit Record" %>
                 </button>
             </form>
         </div>
+        <% } %>
+        <%-- Show error message if it exists --%>
+        <% if (request.getAttribute("errorMessage") != null) { %>
+            <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #fecaca;">
+                <%= request.getAttribute("errorMessage") %>
+            </div>
         <% } %>
 
         <div class="table-box">
@@ -240,7 +248,8 @@
             document.body.removeChild(link);
         }
 
-        const ctx = document.getElementById('salaryChart').getContext('2d');
+        const ctx = document.getElementById('
+        a').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {

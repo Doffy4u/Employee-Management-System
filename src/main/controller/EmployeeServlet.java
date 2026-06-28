@@ -151,15 +151,45 @@ public class EmployeeServlet extends HttpServlet {
     }
 
     private void insertEmployee(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException {
+            throws SQLException, IOException, ServletException {
         String name = request.getParameter("name");
         String email = request.getParameter("email");
         String department = request.getParameter("department");
-        double salary = Double.parseDouble(request.getParameter("salary"));
 
+        // Parse salary safely
+        double salary;
+        try {
+            salary = Double.parseDouble(request.getParameter("salary"));
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorMessage", "Error: Invalid salary format.");
+            listEmployees(request, response);
+            return;
+        }
+
+        // 1. Negative Salary Validation
+        if (salary < 0) {
+            request.setAttribute("errorMessage", "Error: Salary cannot be negative.");
+            listEmployees(request, response);
+            return;
+        }
+
+        // 2. Database Insertion with Error Handling
+        String admin = (String) request.getSession().getAttribute("adminUser");
         Employee newEmployee = new Employee(name, email, department, salary);
-        employeeDao.insertEmployee(newEmployee);
-        response.sendRedirect("list");
+
+        try {
+            employeeDao.insertEmployee(newEmployee, admin);
+            response.sendRedirect("list");
+        } catch (SQLException e) {
+            // Handle Duplicate Entry (Integrity Constraint)
+            if (e.getMessage().contains("Duplicate entry")) {
+                request.setAttribute("errorMessage", "Error: An employee with the email " + email + " already exists!");
+                listEmployees(request, response);
+            } else {
+                // Rethrow other unexpected database errors
+                throw e;
+            }
+        }
     }
 
     private void updateEmployee(HttpServletRequest request, HttpServletResponse response)

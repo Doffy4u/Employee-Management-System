@@ -1,1 +1,1 @@
-﻿# JAVA PROJECTS
+﻿# This project is completely based on java.

@@ -7,7 +7,6 @@
     <meta charset="UTF-8">
     <title>Nexis EMS | Command Console</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <canvas id="salaryChart" width="400" height="200"></canvas>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #f8fafc; color: #334155; padding: 30px; }
@@ -96,6 +95,13 @@
             <p>$<%= String.format("%,.2f", meanSalary) %></p>
         </div>
     </section>
+
+    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px;">
+        <h3 style="color: #1e3c72; font-size: 16px; font-weight: 600; margin-bottom: 15px;">Departmental Salary Analytics</h3>
+        <div style="height: 250px; position: relative;">
+            <canvas id="salaryChart"></canvas>
+        </div>
+    </div>
 
     <div class="toolkit-bar">
         <input type="text" id="tableSearch" class="search-input" onkeyup="filterTable()" placeholder="🔍 Quick search by name, domain, or ID reference..." />
@@ -248,14 +254,62 @@
             document.body.removeChild(link);
         }
 
-        const ctx = document.getElementById('
-        a').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Dept A', 'Dept B', 'Dept C'], // You'll fetch these from your list
-                datasets: [{ label: 'Average Salary', data: [12000, 19000, 3000] }]
-            }
+        document.addEventListener("DOMContentLoaded", function() {
+            const table = document.getElementById("employeeTable");
+            const tbody = table.getElementsByTagName("tbody")[0];
+            const rows = Array.from(tbody.getElementsByTagName("tr"));
+
+            if (rows.length === 1 && rows[0].cells.length <= 2) return; // Table is empty
+
+            const deptSalary = {};
+            const deptCount = {};
+
+            rows.forEach(row => {
+                if (row.cells.length >= 5) {
+                    const dept = row.cells[3].innerText.trim();
+                    const salaryTd = row.cells[4];
+                    const salary = parseFloat(salaryTd.getAttribute("data-salary") || "0");
+                    if (dept) {
+                        deptSalary[dept] = (deptSalary[dept] || 0) + salary;
+                        deptCount[dept] = (deptCount[dept] || 0) + 1;
+                    }
+                }
+            });
+
+            const depts = Object.keys(deptSalary);
+            const averages = depts.map(d => (deptSalary[d] / deptCount[d]).toFixed(2));
+
+            const ctx = document.getElementById('salaryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: depts,
+                    datasets: [{
+                        label: 'Average Salary ($)',
+                        data: averages,
+                        backgroundColor: 'rgba(30, 60, 114, 0.7)',
+                        borderColor: 'rgba(30, 60, 114, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
         });
 
     </script>

@@ -199,21 +199,18 @@ public class EmployeeServlet extends HttpServlet {
         String email = request.getParameter("email");
         String department = request.getParameter("department");
         double salary = Double.parseDouble(request.getParameter("salary"));
+        String admin = (String) request.getSession().getAttribute("adminUser");
 
         Employee updatedEmployee = new Employee(id, name, email, department, salary);
-        employeeDao.updateEmployee(updatedEmployee);
+        employeeDao.updateEmployee(updatedEmployee, admin);
         response.sendRedirect("list");
     }
 
     private void deleteEmployee(HttpServletRequest request, HttpServletResponse response)
             throws SQLException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
-        employeeDao.deleteEmployee(id);
+        String admin = (String) request.getSession().getAttribute("adminUser");
+        employeeDao.deleteEmployee(id, admin);
         response.sendRedirect("list");
-    }
-
-    private boolean canDelete(HttpSession session) {
-        String role = (String) session.getAttribute("role");
-        return "ADMIN".equals(role);
     }
 }

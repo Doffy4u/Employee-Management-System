@@ -49,7 +49,9 @@ public class EmployeeDao {
                 ? "INSERT INTO employees (id, name, email, department, salary) VALUES (?, ?, ?, ?, ?);"
                 : "INSERT INTO employees (name, email, department, salary) VALUES (?, ?, ?, ?);";
 
-        try (PreparedStatement ps = connection.prepareStatement(INSERT_SQL)) {
+        try (PreparedStatement ps = (targetId != -1)
+                ? connection.prepareStatement(INSERT_SQL)
+                : connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             if (targetId != -1) {
                 ps.setInt(1, targetId);
                 ps.setString(2, employee.getName());
@@ -63,6 +65,18 @@ public class EmployeeDao {
                 ps.setDouble(4, employee.getSalary());
             }
             ps.executeUpdate();
+
+            int insertedId = targetId;
+            if (insertedId == -1) {
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        insertedId = generatedKeys.getInt(1);
+                    }
+                }
+            }
+            if (insertedId != -1) {
+                logAction("INSERT", insertedId, admin);
+            }
         } finally {
             if (connection != null) connection.close();
         }
@@ -95,7 +109,7 @@ public class EmployeeDao {
         return employee;
     }
 
-    public boolean updateEmployee(Employee employee) throws SQLException {
+    public boolean updateEmployee(Employee employee, String admin) throws SQLException {
         String UPDATE_SQL = "UPDATE employees SET name = ?, email = ?, department = ?, salary = ? WHERE id = ?;";
         try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
             statement.setString(1, employee.getName());
@@ -103,15 +117,23 @@ public class EmployeeDao {
             statement.setString(3, employee.getDepartment());
             statement.setDouble(4, employee.getSalary());
             statement.setInt(5, employee.getId());
-            return statement.executeUpdate() > 0;
+            boolean success = statement.executeUpdate() > 0;
+            if (success) {
+                logAction("UPDATE", employee.getId(), admin);
+            }
+            return success;
         }
     }
 
-    public boolean deleteEmployee(int id) throws SQLException {
+    public boolean deleteEmployee(int id, String admin) throws SQLException {
         String DELETE_SQL = "DELETE FROM employees WHERE id = ?;";
         try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
             statement.setInt(1, id);
-            return statement.executeUpdate() > 0;
+            boolean success = statement.executeUpdate() > 0;
+            if (success) {
+                logAction("DELETE", id, admin);
+            }
+            return success;
         }
     }
 

@@ -24,3 +24,6 @@ COPY webapp/ /usr/local/tomcat/webapps/ROOT/
 
 # Copy compiled classes from the builder stage
 COPY --from=builder /app/classes/ /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/
+
+# Expose HTTP port
+EXPOSE 8080

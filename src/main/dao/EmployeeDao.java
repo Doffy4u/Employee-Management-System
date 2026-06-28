@@ -6,7 +6,9 @@ import java.util.List;
 import model.Employee;
 
 public class EmployeeDao {
-    private String jdbcURL = "jdbc:mysql://localhost:3306/ems_db";
+    private String jdbcURL = System.getenv("DB_URL") != null 
+        ? System.getenv("DB_URL") 
+        : "jdbc:mysql://localhost:3306/ems_db";
     private String jdbcUsername = "root";
     private String jdbcPassword = "1234";
 

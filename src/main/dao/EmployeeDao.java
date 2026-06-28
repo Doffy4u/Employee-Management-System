@@ -59,14 +59,12 @@ public class EmployeeDao {
     }
 
     protected Connection getConnection() {
-        Connection connection = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+            return DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Database connection failed! URL: " + jdbcURL + ", User: " + jdbcUsername + ". Error: " + e.getMessage(), e);
         }
-        return connection;
     }
 
     // SMART CREATE: Finds the first available empty ID gap, or appends normally

@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Employee;
 
-public class EmployeeDao {
     private String jdbcURL = System.getenv("DB_URL") != null 
         ? System.getenv("DB_URL") 
         : "jdbc:mysql://localhost:3306/ems_db";
-    private String jdbcUsername = "root";
-    private String jdbcPassword = "1234";
+    private String jdbcUsername = System.getenv("DB_USER") != null
+        ? System.getenv("DB_USER")
+        : "root";
+    private String jdbcPassword = System.getenv("DB_PASSWORD") != null
+        ? System.getenv("DB_PASSWORD")
+        : "1234";
 
     protected Connection getConnection() {
         Connection connection = null;
